@@ -10,7 +10,7 @@
             [quil.core :as q :include-macros true]))
 
 (defn title-stage
-  "The initial stage of the game where the"
+  "The initial stage of the game where the title is displayed."
   [state]
   {:speed 0
    :distance 0
@@ -26,7 +26,7 @@
             "title")})
 
 (defn game-stage
-  "The function that executes during the game state, describing the"
+  "The function that executes during the game state."
   [state]
   (let [player-speed-x (+ (:speed-x (:player state)) (io/get-input-horizontal))
         player-speed-y (max 0 (min 16
