@@ -62,17 +62,18 @@
   (q/fill 255 255 0)
   (q/text (str "SCORE: " (:score state) "\n"
                "FRAME: " (:time state) "\n"
-               "SPEED: " (:speed state) "\n")  10 20))
+               "SPEED: " (.toFixed (:speed state) 1) "\n")  10 20))
 
 (defn render-score [state]
   (q/fill 255 255 0)
-  (q/text (str "YOU LOOSE\n"
-               "FRAMES: " (:time state) "\n"
+  (q/text (str "GAME OVER\n"
+               "FRAMES:    " (:time state) "\n"
+               "DISTANCE:  " (int (:distance state)) "\n"
                "MAX SCORE: " (:max-score state) "\n"
                "SCORE:     " (:score state) "\n"
                "\n"
                "PRESS ANY KEY TO CONTINUE..."
-                (if (= (int (mod (q/seconds) 2)) 0)
+               (if (= (int (mod (q/seconds) 2)) 0)
                  "█"
                  "")) 10 20))
 

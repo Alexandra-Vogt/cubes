@@ -29,11 +29,11 @@
   "The function that executes during the game state."
   [state]
   (let [player-speed-x (+ (:speed-x (:player state)) (io/get-input-horizontal))
-        player-speed-y (max 0 (min 16
-                                   (+ (:speed-y (:player state)) (io/get-input-vertical))))
+        player-speed-y (max 0
+                            (min 16 (+ (:speed-y (:player state)) (io/get-input-vertical))))
         player-x (+ (:x (:player state)) player-speed-x)
         player-y (:y (:player state))
-        speed (+ (max player-speed-x (- player-speed-x)) player-speed-y)
+        speed (q/sqrt (+ (q/pow (max player-speed-x (- player-speed-x)) 2) (q/pow player-speed-y 2)))
         distance (:distance state)
         player-killed (engine/player-killed? state)
         point-cubes (if (and (= 0 (mod (:time state) 128))
@@ -54,7 +54,7 @@
                          :speed-mul (q/random 1.5 0.5)})
                   (engine/update-enemy-pos state))]
     {:speed speed
-     :distance (+ distance (max speed (- speed)))
+     :distance (+ distance speed)
      :player {:x player-x
               :y player-y
               :speed-x player-speed-x
@@ -96,6 +96,9 @@
      :time (if restart
              0
              (:time state))
+     :distance (if restart
+                 0
+                 (:distance state))
      :score (if restart
               0
               (:score state))

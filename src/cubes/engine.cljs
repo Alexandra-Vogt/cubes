@@ -38,7 +38,8 @@
                                 (<= (- player-x 20) point-x))))))
          (map (fn [point]
                 {:x (:x point)
-                 :y (+ (:y point) speed)})))))
+                 :y (+ (:y point) (* (:speed-mul point) speed))
+                 :speed-mul (:speed-mul point)})))))
 
 (defn update-enemy-pos [state]
   (let [speed (:speed state)]
