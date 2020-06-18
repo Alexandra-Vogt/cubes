@@ -45,8 +45,8 @@
     {:speed speed
      :distance (+ distance speed)
      :player (engine/update-player player-speed-x player-speed-y player-x player-y)
-     :enemies (engine/gen-enemies min-x max-x max-y time speed enemies)
-     :point-cubes (engine/gen-point-cubes player-x player-y min-x max-x max-y point-cubes speed time)
+     :enemies (engine/gen-enemies min-x max-x min-y max-y time speed enemies)
+     :point-cubes (engine/gen-point-cubes player-x player-y min-x max-x min-y max-y point-cubes speed time)
      :time (inc time)
      :score (engine/update-score player-x player-y score point-cubes)
      :max-score (:max-score state)
