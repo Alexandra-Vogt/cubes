@@ -6,13 +6,26 @@
 
 (defn setup []
   (q/frame-rate 30)
-  {:speed 0
-   :time 0
-   :score 0
+  {:text (str "CONTROLS:\n"
+               "THE ARROW KEYS CONTROL ACCELERATION ACCELERATION\n"
+               "THE CUBES MOVE AT THE OUTPUT OF A FUNCTION OF YOUR SPEED\n"
+               "\n"
+               "RULES:\n"
+               "HITTING RED SQUARES ENDS THE GAME\n"
+               "HITTING BLUE SQUARES INCREMENTS THE SCORE COUNTER\n"
+               "THE LONGER YOU PLAY THE MORE FREQUENTLY RED CUBES SPAWN\n"
+               "\n"
+               "GOOD LUCK!\n"
+               "PRESS ANY KEY TO CONTINUE...")
+   :speed 0
+   :distance 0
    :player {:x -20
-            :y 200}
+               :y 20}
    :enemies []
    :point-cubes []
+   :time 0
+   :score 0
+   :max-score 0
    :stage "title"})
 
 ; this function is called in index.html

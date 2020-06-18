@@ -1,6 +1,6 @@
 # cubes
 
-A simple game written in Clojurescript and built for the web. The game itself is available online [here](https://blog.vogt.systems/cubes-site). I know the code is a bit messy, that is mostly a product of it being written in about 8 hours on a framework that I did not know before I started the project.
+A simple game written in Clojurescript and built for the web. The game itself is available online [here](https://blog.vogt.systems/cubes-site). The code is modular and fairly decent. If you are arriving here from my blog note that I changed the architecture so that it would be cleaner and less messy.
 
 ## Usage
 
