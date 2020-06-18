@@ -14,7 +14,7 @@
   {:speed 0
    :distance 0
    :player {:x -20
-            :y (:y (:player state))}
+            :y 20}
    :enemies []
    :point-cubes []
    :time 0
@@ -27,25 +27,28 @@
 (defn game-stage
   "The function that executes during the game stage."
   [state]
-  (let [player-speed (+ (:speed (:player state)) (io/get-input-horizontal))
-        player-x (+ (:x (:player state)) player-speed)
+  (let [enemies (:enemies state)
+        player-x (:x (:player state))
         player-y (:y (:player state))
-        speed (max player-speed (- player-speed))
+        min-x (- (/ (q/width) 2) 20)
+        max-x (- (/ (q/width) 2))
+        min-y (- (/ (q/height) 2) 20)
+        max-y (- (/ (q/height) 2))
+        time (:time state)
+        score (:score state)
+        point-cubes (:point-cubes state)
+        player-speed-x (+ (:speed-x (:player state)) (io/get-input-x))
+        player-speed-y (+ (:speed-y (:player state)) (io/get-input-y))
+        speed (q/sqrt (+ (q/pow player-speed-x 2) (q/pow player-speed-y 2)))
         distance (:distance state)
-        player-killed (engine/player-killed? state)
-        point-cubes (engine/gen-point-cubes state)
-        enemies (engine/gen-enemies state)]
+        player-killed (engine/player-killed? player-x player-y min-x max-x min-y max-y enemies)]
     {:speed speed
      :distance (+ distance speed)
-     :player {:x player-x
-              :y player-y
-              :speed player-speed}
-     :enemies enemies
-     :point-cubes point-cubes
-     :time (inc (:time state))
-     :score (if (< (count point-cubes) (count (:point-cubes state)))
-              (inc (:score state))
-              (:score state))
+     :player (engine/update-player player-speed-x player-speed-y player-x player-y)
+     :enemies (engine/gen-enemies min-x max-x max-y time speed enemies)
+     :point-cubes (engine/gen-point-cubes player-x player-y min-x max-x max-y point-cubes speed time)
+     :time (inc time)
+     :score (engine/update-score player-x player-y score point-cubes)
      :max-score (:max-score state)
      :ignore-keypress (if player-killed
                         (q/key-pressed?)
@@ -70,7 +73,9 @@
      :player {:x (if restart
                    -20
                    (:x (:player state)))
-              :y (:y (:player state))}
+              :y (if restart
+                   20
+                   (:y (:player state)))}
      :enemies (if restart
                 []
                 (:enemies state))

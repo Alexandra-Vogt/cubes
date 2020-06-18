@@ -8,73 +8,92 @@
 (defn player-killed?
   "Checks if the player has collided with the walls or an enemy.
   Returns true if yes, false if no."
-  [state]
-  (let [player-x (:x (:player state))
-        player-y (:y (:player state))
-        enemies (:enemies state)]
-    (or (>= player-x 330)
-        (<= player-x -350)
-        (->> enemies
-             (map (fn [enemy]
-                    (let [enemy-x (:x enemy)
-                          enemy-y (:y enemy)]
-                      (and  (>= player-y (- enemy-y 20))
-                            (<= (- player-y 20) enemy-y)
-                            (>= player-x (- enemy-x 20))
-                            (<= (- player-x 20) enemy-x)))))
-             (apply max)))))
+  [player-x player-y min-x max-x min-y max-y enemies]
+  (or (>= player-x min-x)
+      (<= player-x max-x)
+      (>= player-y min-y)
+      (<= player-y max-y)
+      (->> enemies
+           (map (fn [enemy]
+                  (let [enemy-x (:x enemy)
+                        enemy-y (:y enemy)]
+                    (and  (>= player-y (- enemy-y 20))
+                          (<= (- player-y 20) enemy-y)
+                          (>= player-x (- enemy-x 20))
+                          (<= (- player-x 20) enemy-x)))))
+           (apply max))))
 
 (defn update-point-cube-pos
-  "Checks if the player has collided with a point cube. Returns
-  true if yes, false if no."
-  [state]
-  (let [player-x (:x (:player state))
-        player-y (:y (:player state))
-        point-cubes (:point-cubes state)
-        speed (:speed state)]
-    (->> point-cubes
-         (filter (fn [point]
-                   (let [point-x (:x point)
-                         point-y (:y point)]
-                     (not (and  (>= player-y (- point-y 20))
-                                (<= (- player-y 20) point-y)
-                                (>= player-x (- point-x 20))
-                                (<= (- player-x 20) point-x))))))
-         (map (fn [point]
-                {:x (:x point)
-                 :y (+ (:y point) (* (:speed-mul point) speed))
-                 :speed-mul (:speed-mul point)})))))
+  "Updates the position of the point cubes."
+  [player-x player-y point-cubes speed]
+  (->> point-cubes
+       (filter (fn [point]
+                 (let [point-x (:x point)
+                       point-y (:y point)]
+                   (not (and  (>= player-y (- point-y 20))
+                              (<= (- player-y 20) point-y)
+                              (>= player-x (- point-x 20))
+                              (<= (- player-x 20) point-x))))))
+       (map (fn [point]
+              {:x (:x point)
+               :y (+ (:y point) (* (:speed-mul point) speed))
+               :speed-mul (:speed-mul point)}))))
 
-(defn update-enemy-pos [state]
-  (let [speed (:speed state)]
-    (->> (:enemies state)
-         (map (fn [enemy]
-                {:x (:x enemy)
-                 :y (+ (:y enemy) (* (:speed-mul enemy) speed))
-                 :speed-mul (:speed-mul enemy)})))))
+(defn update-enemy-pos
+  "Updates the positions of each enemy."
+  [enemies speed]
+  (map (fn [enemy]
+         {:x (:x enemy)
+          :y (+ (:y enemy) (* (:speed-mul enemy) speed))
+          :speed-mul (:speed-mul enemy)})
+       enemies))
 
-(defn gen-enemies [state]
-  (let [spawn-freq (max 1 (int (/ 60 (inc (/ (+ 10 (:time state)) 500)))))
-        speed (:speed state)]
-    (if (and (= 0 (mod (:time state) spawn-freq))
+(defn gen-enemies
+  "Generates enemies and updates their positions."
+  [min-x max-x max-y time speed enemies]
+  (let [spawn-freq (/ 60 (* (inc (/ (+ 10 time) 500))
+                            (/ (q/width) 700)))]
+    (if (and (= 0 (mod time (max 1 (int spawn-freq))))
              (< 0.4 (max speed (- speed)))
-             (< 100 (:time state)))
-      (conj (update-enemy-pos state)
-            {:x (q/random -350 330)
-             :y -400
-             :speed-mul (q/random 1.5 0.5)})
-      (update-enemy-pos state))))
+             (< 100 time))
+      (concat (update-enemy-pos enemies speed)
+              (map (fn []
+                     {:x (q/random min-x max-x)
+                      :y (- max-y 10)
+                      :speed-mul (q/random 1.5 0.5)})
+                   (repeat (max 1 (int (/ 1 spawn-freq))) 1)))
+      (update-enemy-pos enemies speed))))
+
+(defn update-score
+  "Updates the score of the player."
+  [player-x player-y score point-cubes]
+  (reduce (fn [acc point]
+            (let [point-x (:x point)
+                  point-y (:y point)]
+              (if (and  (>= player-y (- point-y 20))
+                        (<= (- player-y 20) point-y)
+                        (>= player-x (- point-x 20))
+                        (<= (- player-x 20) point-x))
+                (inc acc)
+                (+ acc 0)))) score point-cubes))
 
 (defn gen-point-cubes
   "This calculates when the enemies should be spawned in the game.
   the spawn frequency calculation computes the frequency with which
   enemies will spawn."
-  [state]
-  (let [speed (:speed state)]
-    (if (and (= 0 (mod (:time state) 128))
-             (< 0.4 (max speed (- speed))))
-      (conj (update-point-cube-pos state)
-            {:x (q/random -350 330)
-             :y -400
-             :speed-mul (q/random 1.5 0.5)})
-      (update-point-cube-pos state))))
+  [player-x player-y min-x max-x max-y point-cubes speed time]
+  (if (and (= 0 (mod time (int (/ 128 (/ (q/width) 700)))))
+           (< 0.4 (max speed (- speed))))
+    (conj (update-point-cube-pos player-x player-y point-cubes speed)
+          {:x (q/random min-x max-x)
+           :y (- max-y 10)
+           :speed-mul (q/random 1.5 0.5)})
+    (update-point-cube-pos player-x player-y point-cubes speed)))
+
+(defn update-player
+  "This updates the player state."
+  [player-speed-x player-speed-y player-x player-y]
+   {:x (+ player-x player-speed-x)
+    :y (+ player-y player-speed-y)
+    :speed-x player-speed-x
+    :speed-y player-speed-y})

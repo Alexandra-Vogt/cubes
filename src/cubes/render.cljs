@@ -43,11 +43,11 @@
     (render-player (:x (:player state))
                    (:y (:player state)))))
 
-(defn render-title [state]
+(defn render-title []
   (q/fill 255 255 0)
   (q/text (str "CONTROLS:\n"
-               "THE LEFT AND RIGHT ARROW KEYS CONTROL HORIZONTAL ACCELERATION\n"
-               "THE CUBES FALL AT A SPEED THAT IS A FUNCTION OF YOUR SPEED\n"
+               "THE ARROW KEYS CONTROL ACCELERATION ACCELERATION\n"
+               "THE CUBES MOVE AT THE OUTPUT OF A FUNCTION OF YOUR SPEED\n"
                "\n"
                "RULES:\n"
                "HITTING RED SQUARES ENDS THE GAME\n"
@@ -65,7 +65,7 @@
   (q/fill 255 255 0)
   (q/text (str "SCORE: " (:score state) "\n"
                "FRAME: " (:time state) "\n"
-               "SPEED: " (.toFixed (:speed state) 1) "\n")  10 20))
+               "SPEED: " (.toFixed (:speed state) 1) "\n") 10 20))
 
 (defn render-score [state]
   (q/fill 255 255 0)
@@ -85,12 +85,6 @@
   (q/background 0)
   (render-entities state)
   (condp = (:stage state)
-    "title" (render-title state)
+    "title" (render-title)
     "game" (render-game state)
     "score" (render-score state)))
-
-
-(defrecord ent
-    [name type user]
-  (defun data [emacs]
-    ()))
