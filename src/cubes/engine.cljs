@@ -1,4 +1,8 @@
-(ns cubes.engine)
+(ns cubes.engine
+  "The engine behind the game. It provides utility functions that are used in the
+  state update function. I will be rewriting these as I reactor the code-base of
+  the game."
+  (:require [quil.core :as q :include-macros true]))
 
 
 (defn player-killed?
@@ -48,3 +52,29 @@
                 {:x (:x enemy)
                  :y (+ (:y enemy) (* (:speed-mul enemy) speed))
                  :speed-mul (:speed-mul enemy)})))))
+
+(defn gen-enemies [state]
+  (let [spawn-freq (max 1 (int (/ 60 (inc (/ (+ 10 (:time state)) 500)))))
+        speed (:speed state)]
+    (if (and (= 0 (mod (:time state) spawn-freq))
+             (< 0.4 (max speed (- speed)))
+             (< 100 (:time state)))
+      (conj (update-enemy-pos state)
+            {:x (q/random -350 330)
+             :y -400
+             :speed-mul (q/random 1.5 0.5)})
+      (update-enemy-pos state))))
+
+(defn gen-point-cubes
+  "This calculates when the enemies should be spawned in the game.
+  the spawn frequency calculation computes the frequency with which
+  enemies will spawn."
+  [state]
+  (let [speed (:speed state)]
+    (if (and (= 0 (mod (:time state) 128))
+             (< 0.4 (max speed (- speed))))
+      (conj (update-point-cube-pos state)
+            {:x (q/random -350 330)
+             :y -400
+             :speed-mul (q/random 1.5 0.5)})
+      (update-point-cube-pos state))))

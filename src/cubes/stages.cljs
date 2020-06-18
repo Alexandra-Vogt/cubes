@@ -1,10 +1,9 @@
-;;; Commentary:
-;;
-;;
-;;
-;;
-;;; Code:
 (ns cubes.stages
+  "A series of different functions that serves to manage the state of the game,
+  splitting it into a number of different \"stages\" that are synchronized with
+  the rendering function. Each stage manages the state of the code and changes
+  between the different stages. Future games will not use a stage system and
+  instead endeavor for a more simple mono-stage ECS system."
   (:require [cubes.io :as io]
             [cubes.engine :as engine]
             [quil.core :as q :include-macros true]))
@@ -26,39 +25,21 @@
             "title")})
 
 (defn game-stage
-  "The function that executes during the game state."
+  "The function that executes during the game stage."
   [state]
-  (let [player-speed-x (+ (:speed-x (:player state)) (io/get-input-horizontal))
-        player-speed-y (max 0
-                            (min 16 (+ (:speed-y (:player state)) (io/get-input-vertical))))
-        player-x (+ (:x (:player state)) player-speed-x)
+  (let [player-speed (+ (:speed (:player state)) (io/get-input-horizontal))
+        player-x (+ (:x (:player state)) player-speed)
         player-y (:y (:player state))
-        speed (q/sqrt (+ (q/pow (max player-speed-x (- player-speed-x)) 2) (q/pow player-speed-y 2)))
+        speed (max player-speed (- player-speed))
         distance (:distance state)
         player-killed (engine/player-killed? state)
-        point-cubes (if (and (= 0 (mod (:time state) 128))
-                             (< 0.4 (max speed (- speed))))
-                      (conj (engine/update-point-cube-pos state)
-                            {:x (q/random -350 330)
-                             :y -400
-                             :speed-mul (q/random 1.5 0.5)})
-                      (engine/update-point-cube-pos state))
-        enemies (if (and (= 0 (mod (:time state)
-                                   (max 1
-                                        (int (/ 60 (inc (/ (+ 10 (:time state)) 500)))))))
-                         (< 0.4 (max speed (- speed)))
-                         (< 100 (:time state)))
-                  (conj (engine/update-enemy-pos state)
-                        {:x (q/random -350 330)
-                         :y -400
-                         :speed-mul (q/random 1.5 0.5)})
-                  (engine/update-enemy-pos state))]
+        point-cubes (engine/gen-point-cubes state)
+        enemies (engine/gen-enemies state)]
     {:speed speed
      :distance (+ distance speed)
      :player {:x player-x
               :y player-y
-              :speed-x player-speed-x
-              :speed-y player-speed-y}
+              :speed player-speed}
      :enemies enemies
      :point-cubes point-cubes
      :time (inc (:time state))
@@ -69,6 +50,8 @@
      :ignore-keypress (if player-killed
                         (q/key-pressed?)
                         false)
+     :screen-time (if player-killed
+                    0)
      :stage (if player-killed
               "score"
               "game")}))
@@ -79,7 +62,8 @@
                   (q/key-pressed?)
                   false)
         max-score (max (:max-score state) (:score state))]
-    {:ignore-keypress (if (q/key-pressed?)
+    {:screen-time (inc (:screen-time state))
+     :ignore-keypress (if (or (q/key-pressed?) (> 30 (:screen-time state)))
                         (:ignore-keypress state)
                         false)
      :speed 0

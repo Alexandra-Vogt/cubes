@@ -1,4 +1,6 @@
 (ns cubes.render
+  "The rendering function. It renders the data based upon the stage of the game,
+  "
   (:require [quil.core :as q :include-macros true]))
 
 
@@ -44,7 +46,8 @@
 (defn render-title [state]
   (q/fill 255 255 0)
   (q/text (str "CONTROLS:\n"
-               "ARROW KEYS CONTROL ACCELERATION OF THE YELLOW CUBE\n"
+               "THE LEFT AND RIGHT ARROW KEYS CONTROL HORIZONTAL ACCELERATION\n"
+               "THE CUBES FALL AT A SPEED THAT IS A FUNCTION OF YOUR SPEED\n"
                "\n"
                "RULES:\n"
                "HITTING RED SQUARES ENDS THE GAME\n"
@@ -70,9 +73,9 @@
                "FRAMES:    " (:time state) "\n"
                "DISTANCE:  " (int (:distance state)) "\n"
                "MAX SCORE: " (:max-score state) "\n"
-               "SCORE:     " (:score state) "\n"
-               "\n"
-               "PRESS ANY KEY TO CONTINUE..."
+               "SCORE:     " (:score state)
+               (when (< 60 (:screen-time state))
+                     "\n\nPRESS ANY KEY TO CONTINUE...")
                (if (= (int (mod (q/seconds) 2)) 0)
                  "█"
                  "")) 10 20))
@@ -85,3 +88,9 @@
     "title" (render-title state)
     "game" (render-game state)
     "score" (render-score state)))
+
+
+(defrecord ent
+    [name type user]
+  (defun data [emacs]
+    ()))
