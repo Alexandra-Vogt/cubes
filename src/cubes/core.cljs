@@ -7,7 +7,7 @@
 (defn setup []
   (q/frame-rate 30)
   {:text (str "CONTROLS:\n"
-               "THE ARROW KEYS CONTROL ACCELERATION ACCELERATION\n"
+               "THE ARROW KEYS CONTROL ACCELERATION\n"
                "THE CUBES MOVE AT THE OUTPUT OF A FUNCTION OF YOUR SPEED\n"
                "\n"
                "RULES:\n"
