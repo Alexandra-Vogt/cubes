@@ -31,8 +31,8 @@
          time (:time state)
          score (:score state)
          point-cubes (:point-cubes state)
-         player-speed-x (+ (:speed-x (:player state)) (io/get-input-x))
-         player-speed-y (+ (:speed-y (:player state)) (io/get-input-y))
+         player-speed-x (+ (:speed-x (:player state)) (io/get-x-accel))
+         player-speed-y (+ (:speed-y (:player state)) (io/get-y-accel))
          speed (q/sqrt (+ (q/pow player-speed-x 2) (q/pow player-speed-y 2)))
          distance (:distance state)]
      (if-not (engine/player-killed? player-x player-y min-x max-x min-y max-y enemies)
