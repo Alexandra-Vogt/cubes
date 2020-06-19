@@ -1,6 +1,5 @@
 (ns cubes.render
-  "The rendering function. It renders the data based upon the stage of the game,
-  "
+  "The rendering function. It renders the data based upon the stage of the game."
   (:require [quil.core :as q :include-macros true]))
 
 (defn render-square [[r g b] x y thickness size]
