@@ -24,28 +24,29 @@
    (let [enemies (:enemies state)
          player-x (:x (:player state))
          player-y (:y (:player state))
-         min-x (- (/ (q/width) 2) 20)
-         max-x (- (/ (q/width) 2))
-         min-y (- (/ (q/height) 2) 20)
-         max-y (- (/ (q/height) 2))
+         player-speed-x (+ (:speed-x (:player state)) (io/get-x-accel))
+         player-speed-y (+ (:speed-y (:player state)) (io/get-y-accel))
+         player (engine/update-player player-speed-x player-speed-y player-x player-y)
+         min-x (- (/ (q/width) 2))
+         max-x (- (/ (q/width) 2) 20)
+         min-y (- (/ (q/height) 2))
+         max-y (- (/ (q/height) 2) 20)
          time (:time state)
          score (:score state)
          point-cubes (:point-cubes state)
-         player-speed-x (+ (:speed-x (:player state)) (io/get-x-accel))
-         player-speed-y (+ (:speed-y (:player state)) (io/get-y-accel))
          speed (q/sqrt (+ (q/pow player-speed-x 2) (q/pow player-speed-y 2)))
          distance (:distance state)]
-     (if-not (engine/player-killed? player-x player-y min-x max-x min-y max-y enemies)
+     (if (engine/player-alive? player min-x max-x min-y max-y enemies)
        {:text (str "SCORE: " (:score state) "\n"
                "FRAME: " (:time state) "\n"
                "SPEED: " (.toFixed (:speed state) 1))
         :speed speed
         :distance (+ distance speed)
-        :player (engine/update-player player-speed-x player-speed-y player-x player-y)
+        :player player
         :enemies (engine/gen-enemies min-x max-x min-y max-y time speed enemies)
-        :point-cubes (engine/gen-point-cubes player-x player-y min-x max-x min-y max-y point-cubes speed time)
+        :point-cubes (engine/gen-point-cubes player min-x max-x min-y max-y point-cubes speed time)
         :time (inc time)
-        :score (engine/update-score player-x player-y score point-cubes)
+        :score (engine/update-score player score point-cubes)
         :max-score (:max-score state)}
        {:ignore-keypress (q/key-pressed?)
         :screen-time 0
