@@ -26,7 +26,7 @@
          player-y (:y (:player state))
          player-speed-x (+ (:speed-x (:player state)) (io/get-x-accel))
          player-speed-y (+ (:speed-y (:player state)) (io/get-y-accel))
-         player (engine/update-player player-speed-x player-speed-y player-x player-y)
+         player (:player state)
          min-x (- (/ (q/width) 2))
          max-x (- (/ (q/width) 2) 20)
          min-y (- (/ (q/height) 2))
@@ -42,7 +42,7 @@
                "SPEED: " (.toFixed (:speed state) 1))
         :speed speed
         :distance (+ distance speed)
-        :player player
+        :player (engine/update-player player-speed-x player-speed-y player-x player-y)
         :enemies (engine/gen-enemies min-x max-x min-y max-y time speed enemies)
         :point-cubes (engine/gen-point-cubes player min-x max-x min-y max-y point-cubes speed time)
         :time (inc time)
