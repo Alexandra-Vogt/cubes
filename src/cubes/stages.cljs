@@ -48,7 +48,7 @@
         :time (inc time)
         :score (engine/update-score player score point-cubes)
         :max-score (:max-score state)}
-       {:ignore-keypress (q/key-pressed?)
+       {:ignore-keypress true
         :screen-time 0
         :stage "score"}))))
 
